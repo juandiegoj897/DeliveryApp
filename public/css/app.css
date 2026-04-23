@@ -2,20 +2,18 @@
    DELIVERYA — Custom CSS
    ══════════════════════════════════════════ */
 
-:root {
-  --primary: #E65C00;
-  --primary-dark: #B84800;
-  --primary-light: #FF8533;
-  --accent: #FFC300;
-  --dark: #1A1A2E;
-  --dark2: #16213E;
-  --dark3: #0F3460;
-  --text-light: #F5F5F5;
-  --card-radius: 16px;
-  --shadow: 0 4px 20px rgba(0,0,0,0.1);
-  --shadow-hover: 0 8px 32px rgba(230,92,0,0.2);
-}
-
+:root { 
+  --primary: #E65C00; 
+  --primary-dark: #B84800; 
+  --primary-light: #FF8533; 
+  --accent: #ff8a2b; 
+  --dark: #1A1A2E; 
+  --dark2: #5e88f4; 
+  --dark3: #1d76e3; 
+  --text-light: #F5F5F5; 
+  --card-radius: 16px; 
+  --shadow: 0 4px 20px rgba(24, 23, 23, 0.1); 
+  --shadow-hover: 0 8px 32px rgba(230,92,0,0.2); }
 /* ── Base ── */
 * { box-sizing: border-box; }
 body {
@@ -360,4 +358,19 @@ body {
   font-size: 1.8rem;
   color: var(--dark);
   margin-bottom: 8px;
+}
+
+.hero-img {
+  max-width: 420px;
+  width: 100%;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+  animation: float 3s ease-in-out infinite;
+  border-radius: 20px; 
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }

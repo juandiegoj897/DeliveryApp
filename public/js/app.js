@@ -181,7 +181,11 @@ function renderHome() {
             </div>
           </div>
           <div class="col-lg-6 d-none d-lg-flex justify-content-center">
-            <div style="font-size:12rem;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.4))">🍔</div>
+            <img 
+              src="/images/Cat.png" 
+              alt="Delivery Cat"
+              class="hero-img"
+            />
           </div>
         </div>
       </div>
