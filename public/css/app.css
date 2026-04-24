@@ -27,9 +27,10 @@ body {
 
 /* ── Navbar ── */
 #mainNavbar {
-  background: linear-gradient(135deg, var(--dark) 0%, var(--dark3) 100%);
-  border-bottom: 3px solid var(--primary);
-  padding: 12px 0;
+  background: linear-gradient(90deg, #16213E 0%, #1F4FA3 55%, #2B78E4 100%);
+  border-bottom: 2px solid rgba(255, 145, 0, 0.7);
+  padding: 14px 0;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 #mainNavbar .navbar-brand {
   font-family: 'Syne', sans-serif;
@@ -40,16 +41,29 @@ body {
 }
 #mainNavbar .nav-link { color: rgba(255,255,255,0.85) !important; transition: color 0.2s; }
 #mainNavbar .nav-link:hover { color: var(--accent) !important; }
-
+#mainNavbar .btn-outline-light {
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.3);
+}
 /* ── Hero ── */
 .hero-section {
-  background: linear-gradient(135deg, var(--dark) 0%, var(--dark3) 60%, var(--primary-dark) 100%);
-  min-height: 520px;
+  background: linear-gradient(120deg, #1D3C78 0%, #2468D6 55%, #D86A1A 100%);
+  min-height: 560px;
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
+  z-index: 1; /* 🔥 importante */
 }
+
+.hero-section::before,
+.hero-section::after {
+  pointer-events: none; /* 🔥 evita que bloqueen clicks */
+  z-index: 0;
+}
+
 .hero-section::before {
   content: '';
   position: absolute;
@@ -58,6 +72,17 @@ body {
   width: 600px;
   height: 600px;
   background: radial-gradient(circle, rgba(230,92,0,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(255,190,90,0.18) 0%, transparent 70%);
   border-radius: 50%;
 }
 .hero-title {
@@ -360,6 +385,32 @@ body {
   margin-bottom: 8px;
 }
 
+.product-card, .stat-card, .pedido-card {
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(20, 40, 80, 0.08);
+  transition: all 0.25s ease;
+}
+
+.product-card:hover, .pedido-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px rgba(20, 40, 80, 0.15);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #FFD54F, #FFB300);
+  border: none;
+  color: #1A1A1A;
+  font-weight: 700;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-warning:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(255, 193, 7, 0.45);
+}
+
 .hero-img {
   max-width: 420px;
   width: 100%;
@@ -373,4 +424,22 @@ body {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
+}
+
+body {
+  background: linear-gradient(180deg, #F5FAFF 0%, #FFFFFF 100%);
+}
+
+.logo-navbar {
+  height: 75px;
+  transform: scaleX(1.15);
+  transform-origin: left center;
+  animation: floatLogo 3s ease-in-out infinite;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.25));
+}
+
+@keyframes floatLogo {
+  0% { transform: translateY(0) scaleX(1.15); }
+  50% { transform: translateY(-4px) scaleX(1.15); }
+  100% { transform: translateY(0) scaleX(1.15); }
 }
