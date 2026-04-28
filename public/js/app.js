@@ -1,7 +1,3 @@
-/* ══════════════════════════════════════════
-   DeliverYa — Frontend SPA
-   ══════════════════════════════════════════ */
-
 // ─── Estado global ────────────────────────────────────────────────────────────
 const App = {
   token: localStorage.getItem('token'),
@@ -10,6 +6,10 @@ const App = {
   socket: null,
   API: '/api'
 };
+
+let stripe;
+let card;
+let clientSecret;
 
 // ─── Socket.IO ────────────────────────────────────────────────────────────────
 function inicializarSocket() {
@@ -285,27 +285,51 @@ function renderProductos(lista) {
 
 const EMOJIS = { entrada:'🥗', plato_principal:'🍽️', bebida:'🥤', postre:'🍰', combo:'🎁' };
 function renderProductoCard(p) {
-  return `
+return `
     <div class="product-card card h-100">
       <div class="product-img-placeholder">
         <span>${EMOJIS[p.categoria] || '🍽️'}</span>
       </div>
+
       <div class="card-body d-flex flex-column">
+
         <div class="d-flex justify-content-between align-items-start mb-2">
           <span class="badge-categoria">${categoriaNombre(p.categoria)}</span>
-          ${p.tiempoPrep ? `<small class="text-muted"><i class="bi bi-clock me-1"></i>${p.tiempoPrep} min</small>` : ''}
+          ${p.tiempoPrep ? `<small class="text-muted">${p.tiempoPrep} min</small>` : ''}
         </div>
+
         <h6 class="fw-700 mb-1">${p.nombre}</h6>
+
+        <small class="text-muted mb-1">
+          📍 ${p.restaurante?.nombre || 'Restaurante'}
+        </small>
+
         <p class="text-muted small mb-3 flex-grow-1">${p.descripcion || ''}</p>
+
         <div class="d-flex justify-content-between align-items-center">
           <span class="precio">$${p.precio.toLocaleString('es-CO')}</span>
-          <button class="btn-agregar btn btn-sm" onclick="agregarAlCarrito('${p._id}','${p.nombre}',${p.precio},'${EMOJIS[p.categoria]||'🍽️'}')">
-            <i class="bi bi-cart-plus me-1"></i>Agregar
-          </button>
+
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline-secondary"
+              onclick="verMapa(${p.restaurante?.lat}, ${p.restaurante?.lng})">
+              📍
+            </button>
+
+            <button class="btn-agregar btn btn-sm"
+              onclick="agregarAlCarrito('${p._id}','${p.nombre}',${p.precio},'${EMOJIS[p.categoria]||'🍽️'}')">
+              +
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   `;
+}
+
+function verMapa(lat, lng) {
+  const url = `https://www.google.com/maps?q=${lat},${lng}`;
+  window.open(url, '_blank');
 }
 
 let categoriaActual = 'todos';
@@ -599,6 +623,21 @@ async function procederPago() {
   bootstrap.Modal.getInstance(document.getElementById('modalCarrito'))?.hide();
   navegarA('checkout');
 }
+function usarUbicacionGPS() {
+  if (!navigator.geolocation) {
+    return mostrarToast("Tu navegador no soporta GPS", "danger");
+  }
+
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    document.getElementById('dirReferencias').value =
+      `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+    mostrarToast("Ubicación detectada ✔", "success");
+  });
+}
 
 function renderCheckout() {
   const subtotal = App.carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
@@ -609,20 +648,41 @@ function renderCheckout() {
           <h4 class="fw-700 mb-4"><i class="bi bi-credit-card me-2"></i>Finalizar pedido</h4>
 
           <div class="card border-0 shadow-sm rounded-xl p-4 mb-4">
-            <h6 class="fw-700 mb-3"><i class="bi bi-geo-alt me-2"></i>Dirección de entrega</h6>
+            <h6 class="fw-700 mb-3">
+              <i class="bi bi-geo-alt me-2"></i>Ubicación de entrega
+            </h6>
+
+            <!-- Restaurante -->
+            <div class="mb-3 p-3 bg-light rounded">
+              <small class="text-muted">Restaurante</small>
+              <div class="fw-600" id="restauranteNombre">Cargando...</div>
+              <div class="text-muted small" id="restauranteDireccion"></div>
+            </div>
+
+            <!-- Dirección usuario -->
             <div class="row g-3">
               <div class="col-12">
-                <input type="text" class="form-control" id="dirCalle" placeholder="Calle / Carrera y número" required/>
+                <input type="text" class="form-control" id="dirCalle"
+                  placeholder="Calle / Carrera y número" required/>
               </div>
+
               <div class="col-sm-6">
-                <input type="text" class="form-control" id="dirCiudad" placeholder="Ciudad" value="Bogotá"/>
+                <input type="text" class="form-control" id="dirCiudad"
+                  placeholder="Ciudad" value="Pereira"/>
               </div>
+
               <div class="col-sm-6">
-                <input type="text" class="form-control" id="dirReferencias" placeholder="Apto, torre, referencias..."/>
+                <input type="text" class="form-control" id="dirReferencias"
+                  placeholder="Apto, torre, referencias..."/>
               </div>
             </div>
-          </div>
 
+            <!-- Ubicación GPS -->
+            <button class="btn btn-outline-primary btn-sm mt-3 w-100"
+              onclick="usarUbicacionGPS()">
+              <i class="bi bi-crosshair me-2"></i>Usar mi ubicación actual
+            </button>
+          </div>
           <div class="card border-0 shadow-sm rounded-xl p-4 mb-4">
             <h6 class="fw-700 mb-3"><i class="bi bi-wallet me-2"></i>Método de pago</h6>
             <div class="d-flex gap-3 flex-wrap" id="opcionesPago">
@@ -664,7 +724,7 @@ function renderCheckout() {
             <div class="d-flex justify-content-between fs-5 mb-4">
               <strong>Total</strong><strong class="text-primary-custom">$${(subtotal+5000).toLocaleString('es-CO')}</strong>
             </div>
-            <button class="btn btn-warning w-100 btn-lg text-dark fw-700" onclick="confirmarPedido()">
+            <button class="btn btn-warning w-100 btn-lg text-dark fw-700" onclick="pagarConStripe()">
               <i class="bi bi-check-circle me-2"></i>Confirmar Pedido
             </button>
             <button class="btn btn-link text-muted w-100 mt-2" onclick="navegarA('menu')">← Seguir comprando</button>
@@ -673,6 +733,27 @@ function renderCheckout() {
       </div>
     </div>
   `;
+  setTimeout(async () => {
+  try {
+    const pedidoId = App.carrito?.pedidoId || 'ultimo'; 
+
+    const { clientSecret, publishableKey } = await api('POST', '/pagos/stripe/intent', {
+      pedidoId
+    });
+
+    clientSecret = clientSecret;
+
+    stripe = Stripe(publishableKey);
+    const elements = stripe.elements();
+
+    card = elements.create('card');
+    card.mount('#stripeElement');
+
+  } catch (err) {
+    mostrarToast('Error cargando Stripe', 'danger');
+    console.error(err);
+  }
+}, 300);
 }
 
 function seleccionarPago(metodo) {

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { autenticar } = require('../middleware/auth');
 
 // Proxy para Google Maps — protege la API key del frontend
-router.get('/ruta', autenticar, async (req, res) => {
+router.get('/ruta', async (req, res) => {
   try {
     const { origen_lat, origen_lng, destino_lat, destino_lng } = req.query;
 
@@ -38,7 +38,7 @@ router.get('/ruta', autenticar, async (req, res) => {
 });
 
 // Geocodificación
-router.get('/geocodificar', autenticar, async (req, res) => {
+router.get('/geocodificar', async (req, res) => {
   try {
     const { direccion } = req.query;
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(direccion)}&language=es&key=${process.env.GOOGLE_MAPS_API_KEY}`;

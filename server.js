@@ -14,6 +14,9 @@ const io = new Server(server, {
   cors: { origin: process.env.ALLOWED_ORIGINS?.split(',') || '*', methods: ['GET', 'POST'] }
 });
 
+const productosRoutes = require('./routes/productos');
+app.use('/api/productos', productosRoutes);
+
 app.use("/images", express.static(path.join(__dirname, "models/images")));
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
